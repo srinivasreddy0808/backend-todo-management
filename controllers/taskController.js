@@ -19,9 +19,10 @@ exports.getAllTasks = catchAsync(async (req, res) => {
 exports.createTask = catchAsync(async (req, res) => {
   const { user = [], assignTo } = req.body;
   user.push(req.user._id);
-
+  console.log(req.body, user, assignTo);
   if (assignTo && mongoose.Types.ObjectId.isValid(assignTo)) {
-    user.push(mongoose.Types.ObjectId(assignTo));
+    console.log(assignTo, 'assign to is exectued');
+    user.push(assignTo);
   }
   req.body.user = user;
 
