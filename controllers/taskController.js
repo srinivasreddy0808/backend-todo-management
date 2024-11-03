@@ -58,7 +58,7 @@ exports.replaceTask = catchAsync(async (req, res) => {
 
   // Only add assignTo if it exists and is a valid ObjectId
   if (assignTo && mongoose.Types.ObjectId.isValid(assignTo)) {
-    user.push(mongoose.Types.ObjectId(assignTo));
+    user.push(assignTo);
   }
   req.body.user = user;
 
