@@ -75,7 +75,7 @@ exports.replaceTask = catchAsync(async (req, res) => {
 });
 
 exports.getAnalytics = catchAsync(async (req, res) => {
-  const analytics = await Task.getAllAnalytics();
+  const analytics = await Task.getAllAnalytics(req.user._id);
 
   return res.status(200).json({
     success: true,

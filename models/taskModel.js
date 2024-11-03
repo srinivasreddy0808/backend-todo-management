@@ -50,8 +50,11 @@ const taskSchema = new mongoose.Schema({
 });
 
 // Static method to get status analytics
-taskSchema.statics.getStatusAnalytics = async function () {
+taskSchema.statics.getStatusAnalytics = async function (userId) {
   const statusCounts = await this.aggregate([
+    {
+      $match: { user: userId }, // Filter by userId
+    },
     {
       $group: {
         _id: '$status',
@@ -90,9 +93,12 @@ taskSchema.statics.getStatusAnalytics = async function () {
 };
 
 // Static method to get priority analytics
-taskSchema.statics.getPriorityAnalytics = async function () {
+taskSchema.statics.getPriorityAnalytics = async function (userId) {
   const [priorityCounts, dueDateCount] = await Promise.all([
     this.aggregate([
+      {
+        $match: { user: userId }, // Filter by userId
+      },
       {
         $group: {
           _id: '$priority',
@@ -101,6 +107,7 @@ taskSchema.statics.getPriorityAnalytics = async function () {
       },
     ]),
     this.countDocuments({
+      user: userId,
       dueDate: { $exists: true, $ne: null },
     }),
   ]);
@@ -132,10 +139,19 @@ taskSchema.statics.getPriorityAnalytics = async function () {
 };
 
 // Static method to get all analytics
-taskSchema.statics.getAllAnalytics = async function () {
+taskSchema.statics.getAllAnalytics = async function (userId) {
+  // Validate userId
+  if (!userId) {
+    throw new Error('userId is required for analytics');
+  }
+
+  // Convert userId to ObjectId if it's a string
+  const userObjectId =
+    typeof userId === 'string' ? mongoose.Types.ObjectId(userId) : userId;
+
   const [statusAnalytics, priorityAnalytics] = await Promise.all([
-    this.getStatusAnalytics(),
-    this.getPriorityAnalytics(),
+    this.getStatusAnalytics(userObjectId),
+    this.getPriorityAnalytics(userObjectId),
   ]);
 
   return {
